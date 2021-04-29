@@ -1,5 +1,7 @@
 {
   "semi": true,
   "jsxSingleQuote": true,
-  "singleQuote": true
+  "singleQuote": true,
+  "useTabs": true,
+  "tabWidth": 2
 }
