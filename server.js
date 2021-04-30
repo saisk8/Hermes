@@ -22,6 +22,10 @@ app.get('/', (req, res) => {
 	res.send('Hello World!');
 });
 
+app.get('/config', (req, res) => {
+	res.send(config);
+});
+
 // Save file
 app.post('/submit', (req, res) => {
 	const upload = multer({ storage });
