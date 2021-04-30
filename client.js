@@ -11,7 +11,7 @@ program
 const args = program.opts();
 
 console.log(chalk.blue('Fetching config from server...'));
-axios.get(`http://${args.ip}:${args.port}`).then((res) => {
+axios.get(`http://${args.ip}:${args.port}/config`).then((res) => {
 	console.log(res.data);
 	console.log(chalk.green('Config fetched'));
 });
