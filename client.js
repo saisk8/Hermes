@@ -3,8 +3,26 @@ import axios from 'axios';
 import { Command } from 'commander/esm.mjs';
 import chalk from 'chalk';
 import inquirer from 'inquirer';
-const program = new Command();
+import formData from 'form-data';
+import fs from 'fs-extra';
 import inquirerFileTreeSelection from 'inquirer-file-tree-selection-prompt';
+
+const program = new Command();
+const form = new formData();
+
+const submit = (answers) => {
+	form.append('portal', answers.portal);
+	form.append('id', answers.id);
+	form.append('file', fs.createReadStream(answers.filePath));
+
+	axios
+		.post(`http://${args.ip}:${args.port}/submit`, form, {
+			headers: form.getHeaders(),
+		})
+		.then((response) => {
+			console.log(response.data);
+		});
+};
 
 inquirer.registerPrompt('file-tree-selection', inquirerFileTreeSelection);
 
@@ -44,6 +62,10 @@ axios.get(`http://${args.ip}:${args.port}/config`).then((res) => {
 			},
 		])
 		.then((answers) => {
-			console.log(answers);
+			if (!answers.confirm) {
+				console.log(chalk.yellow('Submission aborted'));
+				return;
+			}
+			submit(answers);
 		});
 });

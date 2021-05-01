@@ -3,13 +3,18 @@ import express from 'express';
 import multer from 'multer';
 import fs from 'fs-extra';
 import config from './config.js';
+import hemlet from 'helmet';
 
 const app = express();
 
+app.use(hemlet());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
 const storage = multer.diskStorage({
 	destination: (req, file, cb) => {
-		console.log(req.body);
-		const dest = `${config.destination}/${req.body.exam}/${req.body.id}`;
+		console.log('Request body', req.body);
+		const dest = `${config.destination}/${req.body.portal}/${req.body.id}`;
 		fs.mkdirsSync(dest);
 		cb(null, dest);
 	},
@@ -17,6 +22,9 @@ const storage = multer.diskStorage({
 		cb(null, file.originalname);
 	},
 });
+
+const upload = multer({ storage }).single('file');
+app.use(upload);
 
 app.get('/', (req, res) => {
 	res.send('Hello World!');
@@ -28,19 +36,9 @@ app.get('/config', (req, res) => {
 
 // Save file
 app.post('/submit', (req, res) => {
-	const upload = multer({ storage });
+	console.log(req.body);
 	upload(req, res, (err) => {
-		if (req.fileValidationError) {
-			return res.send(req.fileValidationError);
-		} else if (!req.file) {
-			return res.send('Please select a valid file.');
-		} else if (err instanceof multer.MulterError) {
-			return res.send(err);
-		} else if (err) {
-			return res.send(err);
-		} else if (config.portals.indexOf(req.body.exam) === -1) {
-			res.send('Please select a valid portal for submission');
-		}
+		if (err) console.log(err);
 	});
 	res.send('Data saved');
 });
