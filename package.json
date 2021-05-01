@@ -1,5 +1,8 @@
 {
-  "author": "Sai Somanath komanduri",
+  "author": "Sai Somanath komanduri <k.saisomanath@gmail.com>",
+  "contributors": [
+    "Sai Kishore Komanduri <saikishore.bits@gmail.com>"
+  ],
   "type": "module",
   "dependencies": {
     "axios": "^0.21.1",
