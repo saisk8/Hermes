@@ -1,4 +1,3 @@
-// import inquirer from 'inquirer';
 import axios from 'axios';
 import { Command } from 'commander/esm.mjs';
 import chalk from 'chalk';
@@ -10,18 +9,19 @@ import inquirerFileTreeSelection from 'inquirer-file-tree-selection-prompt';
 const program = new Command();
 const form = new formData();
 
-const submit = (answers) => {
+const submit = async (answers) => {
 	form.append('portal', answers.portal);
 	form.append('id', answers.id);
 	form.append('file', fs.createReadStream(answers.filePath));
 
-	axios
-		.post(`http://${args.ip}:${args.port}/submit`, form, {
+	const response = await axios.post(
+		`http://${args.ip}:${args.port}/submit`,
+		form,
+		{
 			headers: form.getHeaders(),
-		})
-		.then((response) => {
-			console.log(response.data);
-		});
+		}
+	);
+	return response;
 };
 
 inquirer.registerPrompt('file-tree-selection', inquirerFileTreeSelection);
@@ -42,35 +42,36 @@ axios.get(`http://${args.ip}:${args.port}/config`).then(async (res) => {
 		);
 	}
 
-	// Ask question as submit the file
-	inquirer
-		.prompt([
-			{
-				name: 'portal',
-				message: 'Choose the portal you want to make the submission to',
-				choices: res.data.portals,
-				type: 'list',
-			},
-			{
-				name: 'filePath',
-				message: 'Enter the the path of the file you want to submit',
-				type: 'file-tree-selection',
-			},
-			{
-				name: 'id',
-				message: 'What is your unique ID?',
-			},
-			{
-				name: 'confirm',
-				message: 'Do you want to submit the file?',
-				type: 'confirm',
-			},
-		])
-		.then((answers) => {
-			if (!answers.confirm) {
-				console.log(chalk.yellow('Submission aborted'));
-				return;
-			}
-			submit(answers);
-		});
+	// Inquire for details, to post a submission to the Hermes server
+	const answers = await inquirer.prompt([
+		{
+			name: 'portal',
+			message: 'Choose the portal you want to make the submission to',
+			choices: res.data.portals,
+			type: 'list',
+		},
+		{
+			name: 'filePath',
+			message: 'Enter the the path of the file you want to submit',
+			type: 'file-tree-selection',
+		},
+		{
+			name: 'id',
+			message: 'What is your unique ID?',
+		},
+		{
+			name: 'confirm',
+			message: 'Do you want to submit the file?',
+			type: 'confirm',
+		},
+	]);
+
+	if (!answers.confirm) {
+		return console.log(chalk.yellow('Submission aborted!'));
+	}
+
+	await submit(answers);
+	return console.log(
+		chalk.yellow('Submission has been recieved, succesfully.')
+	);
 });
