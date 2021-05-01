@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 		fs.mkdirsSync(dest);
 		cb(null, dest);
 	},
-	filename: (req, file, cb) => {
+	filename: (_, file, cb) => {
 		cb(null, file.originalname);
 	},
 });
@@ -26,11 +26,11 @@ const storage = multer.diskStorage({
 const upload = multer({ storage }).single('file');
 app.use(upload);
 
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
 	res.send('Hello World!');
 });
 
-app.get('/config', (req, res) => {
+app.get('/config', (_, res) => {
 	res.send(config);
 });
 
@@ -44,5 +44,5 @@ app.post('/submit', (req, res) => {
 });
 
 app.listen(config.port, () => {
-	console.log(`Hermes listening at http://localhost:${config.port}`);
+	console.log(`Hermes is listening at http://localhost:${config.port}`);
 });
