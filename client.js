@@ -32,10 +32,15 @@ program
 	.parse();
 const args = program.opts();
 
-console.log(chalk.blue('Fetching config from server...'));
-axios.get(`http://${args.ip}:${args.port}/config`).then((res) => {
-	console.log(res.data);
-	console.log(chalk.green('Config fetched'));
+console.log(chalk.blue('Fetching portal details from the server...'));
+axios.get(`http://${args.ip}:${args.port}/config`).then(async (res) => {
+	console.log(chalk.green('Portal details have been fetched.'));
+
+	if (res.data.portals.length === 0) {
+		return console.log(
+			chalk.yellow('No portals are currently available. Submission aborted!')
+		);
+	}
 
 	// Ask question as submit the file
 	inquirer
